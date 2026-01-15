@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
@@ -64,88 +63,90 @@ export default function SignupPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#fafafa] p-4">
-            <Card className="w-full max-w-md shadow-premium-lg border-0">
-                <CardHeader className="text-center">
-                    <Link href="/" className="inline-flex items-center justify-center gap-2 mb-4">
+        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+            <div className="w-full max-w-sm rounded-xl border border-border/50 bg-card p-6">
+                <div className="text-center mb-6">
+                    <Link href="/" className="inline-flex items-center justify-center mb-4">
                         <Image
                             src="/print_transparent.svg"
-                            alt="School Logo"
-                            width={180}
-                            height={60}
+                            alt="Logo"
+                            width={140}
+                            height={45}
                         />
                     </Link>
-                    <CardTitle className="text-2xl">Create an account</CardTitle>
-                    <CardDescription>
-                        Get started with your AI learning journey
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Full Name</Label>
-                            <Input
-                                id="name"
-                                type="text"
-                                placeholder="John Doe"
-                                value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                required
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="you@example.com"
-                                value={formData.email}
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                required
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="password">Password</Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                placeholder="••••••••"
-                                value={formData.password}
-                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                required
-                                minLength={6}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="confirmPassword">Confirm Password</Label>
-                            <Input
-                                id="confirmPassword"
-                                type="password"
-                                placeholder="••••••••"
-                                value={formData.confirmPassword}
-                                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                                required
-                            />
-                        </div>
-                        <Button type="submit" className="w-full" disabled={isLoading}>
-                            {isLoading ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Creating account...
-                                </>
-                            ) : (
-                                "Create Account"
-                            )}
-                        </Button>
-                    </form>
-                    <div className="mt-6 text-center text-sm text-muted-foreground">
-                        Already have an account?{" "}
-                        <Link href="/login" className="text-primary hover:underline">
-                            Sign in
-                        </Link>
+                    <h1 className="text-lg font-semibold">Create an account</h1>
+                    <p className="text-xs text-muted-foreground">
+                        Get started with your learning journey
+                    </p>
+                </div>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-1.5">
+                        <Label htmlFor="name" className="text-xs">Full Name</Label>
+                        <Input
+                            id="name"
+                            type="text"
+                            placeholder="John Doe"
+                            className="h-9 text-sm"
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            required
+                        />
                     </div>
-                </CardContent>
-            </Card>
+                    <div className="space-y-1.5">
+                        <Label htmlFor="email" className="text-xs">Email</Label>
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="you@example.com"
+                            className="h-9 text-sm"
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            required
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <Label htmlFor="password" className="text-xs">Password</Label>
+                        <Input
+                            id="password"
+                            type="password"
+                            placeholder="••••••••"
+                            className="h-9 text-sm"
+                            value={formData.password}
+                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                            required
+                            minLength={6}
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <Label htmlFor="confirmPassword" className="text-xs">Confirm Password</Label>
+                        <Input
+                            id="confirmPassword"
+                            type="password"
+                            placeholder="••••••••"
+                            className="h-9 text-sm"
+                            value={formData.confirmPassword}
+                            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                            required
+                        />
+                    </div>
+                    <Button type="submit" className="w-full h-9 text-sm rounded-full" disabled={isLoading}>
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                                Creating account...
+                            </>
+                        ) : (
+                            "Create Account"
+                        )}
+                    </Button>
+                </form>
+                <div className="mt-6 text-center text-xs text-muted-foreground">
+                    Already have an account?{" "}
+                    <Link href="/login" className="text-foreground hover:underline">
+                        Sign in
+                    </Link>
+                </div>
+            </div>
         </div>
     );
 }

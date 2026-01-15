@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -21,13 +20,13 @@ interface CourseDetailPageProps {
 function getDifficultyColor(difficulty: string) {
     switch (difficulty) {
         case "beginner":
-            return "bg-green-100 text-green-700";
+            return "bg-emerald-500/10 text-emerald-500";
         case "intermediate":
-            return "bg-yellow-100 text-yellow-700";
+            return "bg-amber-500/10 text-amber-500";
         case "advanced":
-            return "bg-red-100 text-red-700";
+            return "bg-red-500/10 text-red-500";
         default:
-            return "bg-gray-100 text-gray-700";
+            return "bg-muted text-muted-foreground";
     }
 }
 
@@ -51,45 +50,47 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
         <SidebarProvider>
             <AppSidebar user={user} />
             <SidebarInset>
-                {/* Header with sidebar trigger */}
-                <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+                {/* Header */}
+                <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border/50 px-6">
                     <SidebarTrigger className="-ml-1" />
                     <Separator orientation="vertical" className="mr-2 h-4" />
-                    <div className="flex items-center gap-2">
-                        <Link href="/courses" className="text-muted-foreground hover:text-foreground text-sm">
+                    <div className="flex items-center gap-2 text-sm">
+                        <Link href="/courses" className="text-muted-foreground hover:text-foreground">
                             Courses
                         </Link>
                         <span className="text-muted-foreground">/</span>
-                        <span className="text-sm font-medium truncate max-w-[200px]">{course.title}</span>
+                        <span className="font-medium truncate max-w-[200px]">{course.title}</span>
                     </div>
                 </header>
 
-                <main className="flex-1 p-6">
+                <main className="w-full max-w-5xl mx-auto px-6 py-8">
                     <div className="grid gap-8 lg:grid-cols-3">
                         {/* Main Content */}
-                        <div className="lg:col-span-2">
+                        <div className="lg:col-span-2 space-y-6">
                             {/* Course Header */}
-                            <div className="mb-8">
-                                <div className="flex items-center gap-2 mb-4">
+                            <div>
+                                <div className="flex items-center gap-1.5 mb-3">
                                     {course.category && (
-                                        <Badge variant="outline" className="border-[#e5e5e5]">{course.category}</Badge>
+                                        <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[10px]">
+                                            {course.category}
+                                        </Badge>
                                     )}
-                                    <Badge className={`border-0 ${getDifficultyColor(course.difficulty)}`}>
+                                    <Badge className={`rounded-full px-2 py-0.5 text-[10px] border-0 ${getDifficultyColor(course.difficulty)}`}>
                                         {course.difficulty.charAt(0).toUpperCase() + course.difficulty.slice(1)}
                                     </Badge>
                                 </div>
-                                <h1 className="text-3xl font-bold mb-4">{course.title}</h1>
-                                <p className="text-muted-foreground text-lg">{course.description}</p>
+                                <h1 className="text-xl font-semibold mb-2">{course.title}</h1>
+                                <p className="text-sm text-muted-foreground">{course.description}</p>
                             </div>
 
                             {/* Course Stats */}
-                            <div className="flex items-center gap-6 mb-8 text-sm">
-                                <div className="flex items-center gap-2">
-                                    <BookOpen className="h-5 w-5 text-muted-foreground" />
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                <div className="flex items-center gap-1.5">
+                                    <BookOpen className="h-4 w-4" />
                                     <span>{totalLessons} lessons</span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <Clock className="h-5 w-5 text-muted-foreground" />
+                                <div className="flex items-center gap-1.5">
+                                    <Clock className="h-4 w-4" />
                                     <span>
                                         {totalDuration > 0
                                             ? `${Math.floor(totalDuration / 3600)}h ${Math.floor((totalDuration % 3600) / 60)}m`
@@ -99,46 +100,44 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                                 </div>
                             </div>
 
-                            <Separator className="my-8" />
+                            <Separator className="border-border/50" />
 
                             {/* Curriculum */}
-                            <div>
-                                <h2 className="text-2xl font-bold mb-6">Curriculum</h2>
-                                <div className="space-y-4">
+                            <div className="space-y-4">
+                                <h2 className="text-lg font-semibold">Curriculum</h2>
+                                <div className="space-y-3">
                                     {course.modules.map((module, moduleIndex) => (
-                                        <Card key={module.id} className="shadow-premium border-0 bg-white">
-                                            <CardHeader className="pb-3">
-                                                <CardTitle className="text-lg">
+                                        <div key={module.id} className="rounded-xl border border-border/50 bg-card p-5">
+                                            <div className="mb-3">
+                                                <h3 className="text-sm font-semibold">
                                                     {moduleIndex + 1}. {module.title}
-                                                </CardTitle>
-                                                <CardDescription>
+                                                </h3>
+                                                <p className="text-[10px] text-muted-foreground">
                                                     {module.lessons.length} lessons
-                                                </CardDescription>
-                                            </CardHeader>
-                                            <CardContent className="pt-0">
-                                                <div className="space-y-2">
-                                                    {module.lessons.map((lesson) => (
-                                                        <div
-                                                            key={lesson.id}
-                                                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#f5f5f5] transition-colors"
-                                                        >
-                                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f5f5f5] shrink-0">
-                                                                <Play className="h-3 w-3" />
-                                                            </div>
-                                                            <div className="flex-1 min-w-0">
-                                                                <p className="text-sm font-medium">{lesson.title}</p>
-                                                            </div>
-                                                            <span className="text-xs text-muted-foreground">
-                                                                {lesson.duration_seconds
-                                                                    ? `${Math.floor(lesson.duration_seconds / 60)}:${(lesson.duration_seconds % 60).toString().padStart(2, '0')}`
-                                                                    : '--:--'
-                                                                }
-                                                            </span>
+                                                </p>
+                                            </div>
+                                            <div className="space-y-1.5">
+                                                {module.lessons.map((lesson) => (
+                                                    <div
+                                                        key={lesson.id}
+                                                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors"
+                                                    >
+                                                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted/50 shrink-0">
+                                                            <Play className="h-3 w-3" />
                                                         </div>
-                                                    ))}
-                                                </div>
-                                            </CardContent>
-                                        </Card>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-xs font-medium">{lesson.title}</p>
+                                                        </div>
+                                                        <span className="text-[10px] text-muted-foreground">
+                                                            {lesson.duration_seconds
+                                                                ? `${Math.floor(lesson.duration_seconds / 60)}:${(lesson.duration_seconds % 60).toString().padStart(2, '0')}`
+                                                                : '--:--'
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
                                     ))}
                                 </div>
                             </div>
@@ -146,55 +145,55 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
 
                         {/* Sidebar */}
                         <div className="lg:col-span-1">
-                            <Card className="sticky top-24 shadow-premium-lg border-0 bg-white">
+                            <div className="sticky top-24 rounded-xl border border-border/50 bg-card overflow-hidden">
                                 {/* Thumbnail */}
-                                <div className="aspect-video bg-gradient-to-br from-[#f5f5f5] to-[#e5e5e5] flex items-center justify-center rounded-t-lg">
+                                <div className="aspect-video bg-muted/50 flex items-center justify-center">
                                     {course.thumbnail_url ? (
                                         <img
                                             src={course.thumbnail_url}
                                             alt={course.title}
-                                            className="w-full h-full object-cover rounded-t-lg"
+                                            className="w-full h-full object-cover"
                                         />
                                     ) : (
-                                        <BookOpen className="h-16 w-16 text-[#a3a3a3]" />
+                                        <BookOpen className="h-12 w-12 text-muted-foreground" />
                                     )}
                                 </div>
-                                <CardContent className="p-6">
+                                <div className="p-5 space-y-4">
                                     {enrolled ? (
-                                        <Button className="w-full" size="lg" asChild>
+                                        <Button className="w-full h-9 text-sm rounded-full" asChild>
                                             <Link href={`/learn/${course.id}`}>
-                                                <Play className="mr-2 h-4 w-4" />
+                                                <Play className="mr-1.5 h-3 w-3" />
                                                 Continue Learning
                                             </Link>
                                         </Button>
                                     ) : user ? (
                                         <EnrollButton courseId={course.id} />
                                     ) : (
-                                        <Button className="w-full" size="lg" asChild>
+                                        <Button className="w-full h-9 text-sm rounded-full" asChild>
                                             <Link href={`/login?redirect=/courses/${course.id}`}>
                                                 Sign in to Enroll
                                             </Link>
                                         </Button>
                                     )}
 
-                                    <Separator className="my-6" />
+                                    <Separator className="border-border/50" />
 
-                                    <div className="space-y-4 text-sm">
-                                        <div className="flex items-center justify-between">
+                                    <div className="space-y-3 text-xs">
+                                        <div className="flex items-center justify-between px-1">
                                             <span className="text-muted-foreground">Lessons</span>
                                             <span className="font-medium">{totalLessons}</span>
                                         </div>
-                                        <div className="flex items-center justify-between">
+                                        <div className="flex items-center justify-between px-1">
                                             <span className="text-muted-foreground">Modules</span>
                                             <span className="font-medium">{course.modules.length}</span>
                                         </div>
-                                        <div className="flex items-center justify-between">
+                                        <div className="flex items-center justify-between px-1">
                                             <span className="text-muted-foreground">Difficulty</span>
                                             <span className="font-medium capitalize">{course.difficulty}</span>
                                         </div>
                                     </div>
-                                </CardContent>
-                            </Card>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </main>

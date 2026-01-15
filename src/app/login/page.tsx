@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -61,21 +60,22 @@ function LoginForm() {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+            <div className="space-y-1.5">
+                <Label htmlFor="email" className="text-xs">Email</Label>
                 <Input
                     id="email"
                     type="email"
                     placeholder="you@example.com"
+                    className="h-9 text-sm"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
                 />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
-                    <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+                    <Label htmlFor="password" className="text-xs">Password</Label>
+                    <Link href="/forgot-password" className="text-xs text-muted-foreground hover:text-foreground">
                         Forgot password?
                     </Link>
                 </div>
@@ -83,15 +83,16 @@ function LoginForm() {
                     id="password"
                     type="password"
                     placeholder="••••••••"
+                    className="h-9 text-sm"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     required
                 />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full h-9 text-sm rounded-full" disabled={isLoading}>
                 {isLoading ? (
                     <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
                         Signing in...
                     </>
                 ) : (
@@ -105,49 +106,47 @@ function LoginForm() {
 function LoginFormSkeleton() {
     return (
         <div className="space-y-4">
-            <div className="space-y-2">
+            <div className="space-y-1.5">
                 <Skeleton className="h-4 w-12" />
-                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-9 w-full" />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
                 <Skeleton className="h-4 w-16" />
-                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-9 w-full" />
             </div>
-            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-9 w-full rounded-full" />
         </div>
     );
 }
 
 export default function LoginPage() {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#fafafa] p-4">
-            <Card className="w-full max-w-md shadow-premium-lg border-0">
-                <CardHeader className="text-center">
-                    <Link href="/" className="inline-flex items-center justify-center gap-2 mb-4">
+        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+            <div className="w-full max-w-sm rounded-xl border border-border/50 bg-card p-6">
+                <div className="text-center mb-6">
+                    <Link href="/" className="inline-flex items-center justify-center mb-4">
                         <Image
                             src="/print_transparent.svg"
-                            alt="School Logo"
-                            width={180}
-                            height={60}
+                            alt="Logo"
+                            width={140}
+                            height={45}
                         />
                     </Link>
-                    <CardTitle className="text-2xl">Welcome back</CardTitle>
-                    <CardDescription>
+                    <h1 className="text-lg font-semibold">Welcome back</h1>
+                    <p className="text-xs text-muted-foreground">
                         Sign in to your account to continue learning
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Suspense fallback={<LoginFormSkeleton />}>
-                        <LoginForm />
-                    </Suspense>
-                    <div className="mt-6 text-center text-sm text-muted-foreground">
-                        Don&apos;t have an account?{" "}
-                        <Link href="/signup" className="text-primary hover:underline">
-                            Sign up
-                        </Link>
-                    </div>
-                </CardContent>
-            </Card>
+                    </p>
+                </div>
+                <Suspense fallback={<LoginFormSkeleton />}>
+                    <LoginForm />
+                </Suspense>
+                <div className="mt-6 text-center text-xs text-muted-foreground">
+                    Don&apos;t have an account?{" "}
+                    <Link href="/signup" className="text-foreground hover:underline">
+                        Sign up
+                    </Link>
+                </div>
+            </div>
         </div>
     );
 }

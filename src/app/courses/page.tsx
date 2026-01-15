@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -17,13 +16,13 @@ import { AppSidebar } from "@/components/app-sidebar";
 function getDifficultyColor(difficulty: string) {
     switch (difficulty) {
         case "beginner":
-            return "bg-green-100 text-green-700";
+            return "bg-emerald-500/10 text-emerald-500";
         case "intermediate":
-            return "bg-yellow-100 text-yellow-700";
+            return "bg-amber-500/10 text-amber-500";
         case "advanced":
-            return "bg-red-100 text-red-700";
+            return "bg-red-500/10 text-red-500";
         default:
-            return "bg-gray-100 text-gray-700";
+            return "bg-muted text-muted-foreground";
     }
 }
 
@@ -39,45 +38,49 @@ export default async function CoursesPage() {
         <SidebarProvider>
             <AppSidebar user={user} />
             <SidebarInset>
-                {/* Header with sidebar trigger */}
-                <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+                {/* Header */}
+                <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border/50 px-6">
                     <SidebarTrigger className="-ml-1" />
                     <Separator orientation="vertical" className="mr-2 h-4" />
-                    <h1 className="text-lg font-semibold">Courses</h1>
+                    <h1 className="text-sm font-medium">Courses</h1>
                 </header>
 
-                <main className="flex-1 p-6">
+                <main className="w-full max-w-5xl mx-auto px-6 py-8 space-y-6">
                     {/* Page Header */}
-                    <div className="mb-8">
-                        <h2 className="text-2xl font-bold mb-2">All Courses</h2>
-                        <p className="text-muted-foreground">
-                            Explore our comprehensive collection of AI courses
+                    <div>
+                        <h2 className="text-xl font-semibold">All Courses</h2>
+                        <p className="text-sm text-muted-foreground">
+                            Explore our comprehensive collection of courses
                         </p>
                     </div>
 
                     {/* Search */}
-                    <div className="flex flex-col gap-4 mb-8 md:flex-row md:items-center">
-                        <div className="relative flex-1 max-w-md">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center">
+                        <div className="relative flex-1 max-w-sm">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder="Search courses..." className="pl-10 bg-white border-0 shadow-premium" />
+                            <Input
+                                placeholder="Search courses..."
+                                className="pl-10 h-9 text-sm rounded-full border-border/50"
+                            />
                         </div>
                     </div>
 
                     {/* Courses Grid */}
                     {courses.length === 0 ? (
-                        <Card className="text-center py-12 shadow-premium border-0 bg-white">
-                            <CardContent>
-                                <BookOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                                <h3 className="text-lg font-semibold mb-2">No courses available yet</h3>
-                                <p className="text-muted-foreground">Check back soon for new courses!</p>
-                            </CardContent>
-                        </Card>
+                        <div className="rounded-xl border border-border/50 bg-card p-12 text-center">
+                            <BookOpen className="h-10 w-10 mx-auto mb-4 text-muted-foreground" />
+                            <h3 className="text-base font-semibold mb-1">No courses available yet</h3>
+                            <p className="text-sm text-muted-foreground">Check back soon for new courses!</p>
+                        </div>
                     ) : (
-                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                             {courses.map((course) => (
-                                <Card key={course.id} className="flex flex-col overflow-hidden shadow-premium border-0 bg-white card-hover">
+                                <div
+                                    key={course.id}
+                                    className="rounded-xl border border-border/50 bg-card overflow-hidden hover:border-border transition-colors"
+                                >
                                     {/* Course Thumbnail */}
-                                    <div className="h-40 bg-gradient-to-br from-[#f5f5f5] to-[#e5e5e5] flex items-center justify-center">
+                                    <div className="h-36 bg-muted/50 flex items-center justify-center">
                                         {course.thumbnail_url ? (
                                             <img
                                                 src={course.thumbnail_url}
@@ -85,42 +88,44 @@ export default async function CoursesPage() {
                                                 className="w-full h-full object-cover"
                                             />
                                         ) : (
-                                            <BookOpen className="h-12 w-12 text-[#a3a3a3]" />
+                                            <BookOpen className="h-10 w-10 text-muted-foreground" />
                                         )}
                                     </div>
-                                    <CardHeader className="flex-1">
-                                        <div className="flex items-center gap-2 mb-2">
+                                    <div className="p-5 space-y-3">
+                                        <div className="flex items-center gap-1.5">
                                             {course.category && (
-                                                <Badge variant="outline" className="text-xs border-[#e5e5e5]">{course.category}</Badge>
+                                                <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[10px]">
+                                                    {course.category}
+                                                </Badge>
                                             )}
-                                            <Badge className={`text-xs border-0 ${getDifficultyColor(course.difficulty)}`}>
+                                            <Badge className={`rounded-full px-2 py-0.5 text-[10px] border-0 ${getDifficultyColor(course.difficulty)}`}>
                                                 {formatDifficulty(course.difficulty)}
                                             </Badge>
                                         </div>
-                                        <CardTitle className="text-lg">{course.title}</CardTitle>
-                                        <CardDescription className="line-clamp-2">
-                                            {course.description}
-                                        </CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
+                                        <div>
+                                            <h3 className="text-sm font-semibold mb-1">{course.title}</h3>
+                                            <p className="text-xs text-muted-foreground line-clamp-2">
+                                                {course.description}
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center gap-4 text-[10px] text-muted-foreground">
                                             <span className="flex items-center gap-1">
-                                                <BookOpen className="h-4 w-4" />
+                                                <BookOpen className="h-3 w-3" />
                                                 {course.lesson_count || 0} lessons
                                             </span>
                                             <span className="flex items-center gap-1">
-                                                <Clock className="h-4 w-4" />
+                                                <Clock className="h-3 w-3" />
                                                 {course.duration_minutes ? `${Math.round(course.duration_minutes / 60)}h` : 'TBD'}
                                             </span>
                                         </div>
-                                        <Button className="w-full" asChild>
+                                        <Button className="w-full h-9 text-sm rounded-full" asChild>
                                             <Link href={`/courses/${course.id}`}>
                                                 View Course
-                                                <ArrowRight className="ml-2 h-4 w-4" />
+                                                <ArrowRight className="ml-1.5 h-3 w-3" />
                                             </Link>
                                         </Button>
-                                    </CardContent>
-                                </Card>
+                                    </div>
+                                </div>
                             ))}
                         </div>
                     )}
