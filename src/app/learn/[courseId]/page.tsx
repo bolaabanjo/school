@@ -1,0 +1,187 @@
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+    GraduationCap,
+    Play,
+    Check,
+    Clock,
+    BookOpen,
+    LayoutDashboard,
+    List,
+    ChevronLeft,
+    ChevronRight,
+} from "lucide-react";
+import { getCurrentUser, getCourseWithContent, getUserProgress, isEnrolled } from "@/lib/supabase/queries";
+import { VideoPlayer } from "@/components/video-player";
+import { LessonSidebar } from "@/components/lesson-sidebar";
+
+interface LearnPageProps {
+    params: Promise<{ courseId: string }>;
+    searchParams: Promise<{ lesson?: string }>;
+}
+
+export default async function LearnPage({ params, searchParams }: LearnPageProps) {
+    const { courseId } = await params;
+    const { lesson: lessonParam } = await searchParams;
+
+    const user = await getCurrentUser();
+    if (!user) {
+        redirect('/login');
+    }
+
+    // Check enrollment
+    const enrolled = await isEnrolled(courseId);
+    if (!enrolled) {
+        redirect(`/courses/${courseId}`);
+    }
+
+    // Get course content
+    const course = await getCourseWithContent(courseId);
+    if (!course) {
+        redirect('/dashboard');
+    }
+
+    // Get user progress
+    const progress = await getUserProgress(user.id, courseId);
+
+    // Get all lessons flat
+    const allLessons = course.modules.flatMap(m => m.lessons);
+
+    // Determine current lesson
+    const currentLessonId = lessonParam || allLessons[0]?.id;
+    const currentLesson = allLessons.find(l => l.id === currentLessonId) || allLessons[0];
+    const currentModule = course.modules.find(m => m.lessons.some(l => l.id === currentLesson?.id));
+
+    if (!currentLesson) {
+        redirect('/dashboard');
+    }
+
+    // Calculate progress
+    const completedLessons = progress.filter(p => p.completed).length;
+    const overallProgress = Math.round((completedLessons / allLessons.length) * 100);
+
+    // Find prev/next lessons
+    const currentIndex = allLessons.findIndex(l => l.id === currentLesson.id);
+    const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
+    const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
+
+    // Check if current lesson is completed
+    const isLessonCompleted = progress.some(p => p.lesson_id === currentLesson.id && p.completed);
+
+    return (
+        <div className="min-h-screen bg-background flex">
+            {/* Sidebar */}
+            <LessonSidebar
+                course={course}
+                allLessons={allLessons}
+                currentLessonId={currentLesson.id}
+                progress={progress}
+                completedLessons={completedLessons}
+                overallProgress={overallProgress}
+            />
+
+            {/* Main Content */}
+            <main className="flex-1 ml-80">
+                {/* Top Bar */}
+                <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-background px-4">
+                    <div className="flex items-center gap-3">
+                        <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">
+                            <LayoutDashboard className="h-4 w-4 inline mr-1" />
+                            Dashboard
+                        </Link>
+                        <span className="text-muted-foreground">/</span>
+                        <span className="text-sm font-medium">{course.title}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Badge variant="outline">
+                            Lesson {currentIndex + 1} of {allLessons.length}
+                        </Badge>
+                    </div>
+                </header>
+
+                {/* Video Player */}
+                <VideoPlayer
+                    lesson={currentLesson}
+                    isCompleted={isLessonCompleted}
+                />
+
+                {/* Lesson Info */}
+                <div className="max-w-4xl mx-auto p-6">
+                    <div className="flex items-start justify-between gap-4 mb-6">
+                        <div>
+                            <h1 className="text-2xl font-bold mb-2">{currentLesson.title}</h1>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                <span className="flex items-center gap-1">
+                                    <Clock className="h-4 w-4" />
+                                    {currentLesson.duration_seconds
+                                        ? `${Math.floor(currentLesson.duration_seconds / 60)}:${(currentLesson.duration_seconds % 60).toString().padStart(2, '0')}`
+                                        : 'Duration TBD'
+                                    }
+                                </span>
+                                <span className="flex items-center gap-1">
+                                    <BookOpen className="h-4 w-4" />
+                                    {currentModule?.title}
+                                </span>
+                            </div>
+                        </div>
+                        {isLessonCompleted ? (
+                            <Badge className="bg-green-500">
+                                <Check className="mr-1 h-3 w-3" />
+                                Completed
+                            </Badge>
+                        ) : null}
+                    </div>
+
+                    {currentLesson.description && (
+                        <>
+                            <Separator className="my-6" />
+                            <div className="prose prose-neutral dark:prose-invert max-w-none">
+                                <h3>About this lesson</h3>
+                                <p>{currentLesson.description}</p>
+                            </div>
+                        </>
+                    )}
+
+                    <Separator className="my-6" />
+
+                    {/* Navigation */}
+                    <div className="flex items-center justify-between">
+                        {prevLesson ? (
+                            <Button variant="outline" asChild>
+                                <Link href={`/learn/${courseId}?lesson=${prevLesson.id}`}>
+                                    <ChevronLeft className="mr-2 h-4 w-4" />
+                                    Previous
+                                </Link>
+                            </Button>
+                        ) : (
+                            <div />
+                        )}
+                        {nextLesson ? (
+                            <Button asChild>
+                                <Link href={`/learn/${courseId}?lesson=${nextLesson.id}`}>
+                                    Next
+                                    <ChevronRight className="ml-2 h-4 w-4" />
+                                </Link>
+                            </Button>
+                        ) : overallProgress === 100 ? (
+                            <Button asChild>
+                                <Link href="/dashboard">
+                                    Complete Course
+                                    <Check className="ml-2 h-4 w-4" />
+                                </Link>
+                            </Button>
+                        ) : (
+                            <Button disabled>
+                                Complete all lessons
+                            </Button>
+                        )}
+                    </div>
+                </div>
+            </main>
+        </div>
+    );
+}
