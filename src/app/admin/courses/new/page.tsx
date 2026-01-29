@@ -496,7 +496,7 @@ export default function NewCoursePage() {
 
                                                             {lesson.type === 'reading' && (
                                                                 <Textarea
-                                                                    placeholder="Write in Markdown... (## Heading, **bold**, - bullet)"
+                                                                    placeholder="Write in Markdown"
                                                                     rows={6}
                                                                     value={lesson.content}
                                                                     onChange={(e) => {
