@@ -21,16 +21,23 @@ import {
     Loader2,
     Plus,
     GripVertical,
-    Trash2
+    Trash2,
+    Video,
+    BookOpen,
+    Youtube,
 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { extractYouTubeId, getYouTubeThumbnail } from "@/lib/youtube";
 
 interface LessonData {
     id: string;
     title: string;
     description: string;
+    type: 'video' | 'reading' | 'youtube';
     videoFile: File | null;
+    youtube_url: string;
+    content: string;
 }
 
 interface ModuleData {
@@ -43,6 +50,7 @@ export default function NewCoursePage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+    const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -50,7 +58,7 @@ export default function NewCoursePage() {
         category: "",
     });
     const [modules, setModules] = useState<ModuleData[]>([
-        { id: "1", title: "Module 1", lessons: [{ id: "1", title: "", description: "", videoFile: null }] }
+        { id: "1", title: "Module 1", lessons: [{ id: "1", title: "", description: "", type: 'video', videoFile: null, youtube_url: "", content: "" }] }
     ]);
 
     const handleSubmit = async (e: React.FormEvent, publish = false) => {
@@ -72,16 +80,20 @@ export default function NewCoursePage() {
             // Upload thumbnail if exists
             let thumbnailUrl = null;
             if (thumbnailFile) {
+                toast.info('Uploading thumbnail...');
                 const fileName = `${Date.now()}-${thumbnailFile.name}`;
                 const { data: uploadData, error: uploadError } = await supabase.storage
                     .from('thumbnails')
                     .upload(fileName, thumbnailFile);
 
-                if (!uploadError && uploadData) {
+                if (uploadError) {
+                    toast.error(`Thumbnail upload failed: ${uploadError.message}`);
+                } else if (uploadData) {
                     const { data: { publicUrl } } = supabase.storage
                         .from('thumbnails')
                         .getPublicUrl(uploadData.path);
                     thumbnailUrl = publicUrl;
+                    toast.success('Thumbnail uploaded!');
                 }
             }
 
@@ -151,8 +163,10 @@ export default function NewCoursePage() {
                         title: lesson.title,
                         description: lesson.description,
                         video_url: videoUrl,
+                        youtube_url: lesson.youtube_url || null,
+                        content: lesson.content || null,
                         order_index: li,
-                        type: 'video',
+                        type: lesson.type,
                     });
 
                     if (lessonError) {
@@ -179,7 +193,7 @@ export default function NewCoursePage() {
             {
                 id: Date.now().toString(),
                 title: `Module ${modules.length + 1}`,
-                lessons: [{ id: Date.now().toString(), title: "", description: "", videoFile: null }]
+                lessons: [{ id: Date.now().toString(), title: "", description: "", type: 'video' as const, videoFile: null, youtube_url: "", content: "" }]
             }
         ]);
     };
@@ -187,7 +201,7 @@ export default function NewCoursePage() {
     const addLesson = (moduleId: string) => {
         setModules(modules.map(m =>
             m.id === moduleId
-                ? { ...m, lessons: [...m.lessons, { id: Date.now().toString(), title: "", description: "", videoFile: null }] }
+                ? { ...m, lessons: [...m.lessons, { id: Date.now().toString(), title: "", description: "", type: 'video' as const, videoFile: null, youtube_url: "", content: "" }] }
                 : m
         ));
     };
@@ -348,6 +362,158 @@ export default function NewCoursePage() {
                                                                     ));
                                                                 }}
                                                             />
+
+                                                            {/* Lesson Type Selector */}
+                                                            <div className="flex gap-2">
+                                                                <Button
+                                                                    type="button"
+                                                                    variant={lesson.type === 'video' ? 'default' : 'outline'}
+                                                                    size="sm"
+                                                                    onClick={() => {
+                                                                        setModules(modules.map(m =>
+                                                                            m.id === module.id
+                                                                                ? {
+                                                                                    ...m,
+                                                                                    lessons: m.lessons.map(l =>
+                                                                                        l.id === lesson.id ? { ...l, type: 'video' as const } : l
+                                                                                    )
+                                                                                }
+                                                                                : m
+                                                                        ));
+                                                                    }}
+                                                                >
+                                                                    <Video className="h-4 w-4 mr-1" />
+                                                                    Video
+                                                                </Button>
+                                                                <Button
+                                                                    type="button"
+                                                                    variant={lesson.type === 'youtube' ? 'default' : 'outline'}
+                                                                    size="sm"
+                                                                    onClick={() => {
+                                                                        setModules(modules.map(m =>
+                                                                            m.id === module.id
+                                                                                ? {
+                                                                                    ...m,
+                                                                                    lessons: m.lessons.map(l =>
+                                                                                        l.id === lesson.id ? { ...l, type: 'youtube' as const } : l
+                                                                                    )
+                                                                                }
+                                                                                : m
+                                                                        ));
+                                                                    }}
+                                                                >
+                                                                    <Youtube className="h-4 w-4 mr-1" />
+                                                                    YouTube
+                                                                </Button>
+                                                                <Button
+                                                                    type="button"
+                                                                    variant={lesson.type === 'reading' ? 'default' : 'outline'}
+                                                                    size="sm"
+                                                                    onClick={() => {
+                                                                        setModules(modules.map(m =>
+                                                                            m.id === module.id
+                                                                                ? {
+                                                                                    ...m,
+                                                                                    lessons: m.lessons.map(l =>
+                                                                                        l.id === lesson.id ? { ...l, type: 'reading' as const } : l
+                                                                                    )
+                                                                                }
+                                                                                : m
+                                                                        ));
+                                                                    }}
+                                                                >
+                                                                    <BookOpen className="h-4 w-4 mr-1" />
+                                                                    Reading
+                                                                </Button>
+                                                            </div>
+
+                                                            {/* Conditional Content Fields */}
+                                                            {lesson.type === 'video' && (
+                                                                <div className="flex items-center gap-2">
+                                                                    <Label
+                                                                        htmlFor={`video-${lesson.id}`}
+                                                                        className="flex items-center gap-2 px-3 py-2 border rounded-md cursor-pointer hover:bg-muted"
+                                                                    >
+                                                                        <Upload className="h-4 w-4" />
+                                                                        <span className="text-sm">
+                                                                            {lesson.videoFile ? lesson.videoFile.name : "Upload Video"}
+                                                                        </span>
+                                                                    </Label>
+                                                                    <input
+                                                                        id={`video-${lesson.id}`}
+                                                                        type="file"
+                                                                        accept="video/*"
+                                                                        className="hidden"
+                                                                        onChange={(e) => {
+                                                                            const file = e.target.files?.[0] || null;
+                                                                            setModules(modules.map(m =>
+                                                                                m.id === module.id
+                                                                                    ? {
+                                                                                        ...m,
+                                                                                        lessons: m.lessons.map(l =>
+                                                                                            l.id === lesson.id ? { ...l, videoFile: file } : l
+                                                                                        )
+                                                                                    }
+                                                                                    : m
+                                                                            ));
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                            )}
+
+                                                            {lesson.type === 'youtube' && (
+                                                                <div className="space-y-2">
+                                                                    <Input
+                                                                        placeholder="YouTube URL (e.g., https://youtube.com/watch?v=...)"
+                                                                        value={lesson.youtube_url}
+                                                                        onChange={(e) => {
+                                                                            setModules(modules.map(m =>
+                                                                                m.id === module.id
+                                                                                    ? {
+                                                                                        ...m,
+                                                                                        lessons: m.lessons.map(l =>
+                                                                                            l.id === lesson.id ? { ...l, youtube_url: e.target.value } : l
+                                                                                        )
+                                                                                    }
+                                                                                    : m
+                                                                            ));
+                                                                        }}
+                                                                    />
+                                                                    {lesson.youtube_url && extractYouTubeId(lesson.youtube_url) && (
+                                                                        <div className="relative aspect-video w-48 rounded-md overflow-hidden border">
+                                                                            <img
+                                                                                src={getYouTubeThumbnail(extractYouTubeId(lesson.youtube_url)!)}
+                                                                                alt="YouTube thumbnail"
+                                                                                className="w-full h-full object-cover"
+                                                                            />
+                                                                            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                                                                                <Youtube className="h-8 w-8 text-white" />
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            )}
+
+                                                            {lesson.type === 'reading' && (
+                                                                <Textarea
+                                                                    placeholder="Enter reading content (HTML supported)..."
+                                                                    rows={6}
+                                                                    value={lesson.content}
+                                                                    onChange={(e) => {
+                                                                        setModules(modules.map(m =>
+                                                                            m.id === module.id
+                                                                                ? {
+                                                                                    ...m,
+                                                                                    lessons: m.lessons.map(l =>
+                                                                                        l.id === lesson.id ? { ...l, content: e.target.value } : l
+                                                                                    )
+                                                                                }
+                                                                                : m
+                                                                        ));
+                                                                    }}
+                                                                />
+                                                            )}
+
                                                             <Textarea
                                                                 placeholder="Lesson description (optional)"
                                                                 rows={2}
@@ -365,46 +531,22 @@ export default function NewCoursePage() {
                                                                     ));
                                                                 }}
                                                             />
-                                                            <div className="flex items-center gap-2">
-                                                                <Label
-                                                                    htmlFor={`video-${lesson.id}`}
-                                                                    className="flex items-center gap-2 px-3 py-2 border rounded-md cursor-pointer hover:bg-muted"
-                                                                >
-                                                                    <Upload className="h-4 w-4" />
-                                                                    <span className="text-sm">
-                                                                        {lesson.videoFile ? lesson.videoFile.name : "Upload Video"}
-                                                                    </span>
-                                                                </Label>
-                                                                <input
-                                                                    id={`video-${lesson.id}`}
-                                                                    type="file"
-                                                                    accept="video/*"
-                                                                    className="hidden"
-                                                                    onChange={(e) => {
-                                                                        const file = e.target.files?.[0] || null;
-                                                                        setModules(modules.map(m =>
-                                                                            m.id === module.id
-                                                                                ? {
-                                                                                    ...m,
-                                                                                    lessons: m.lessons.map(l =>
-                                                                                        l.id === lesson.id ? { ...l, videoFile: file } : l
-                                                                                    )
-                                                                                }
-                                                                                : m
-                                                                        ));
-                                                                    }}
-                                                                />
-                                                                {module.lessons.length > 1 && (
+
+                                                            {/* Delete Button */}
+                                                            {module.lessons.length > 1 && (
+                                                                <div className="flex justify-end">
                                                                     <Button
                                                                         type="button"
                                                                         variant="ghost"
-                                                                        size="icon"
+                                                                        size="sm"
                                                                         onClick={() => removeLesson(module.id, lesson.id)}
+                                                                        className="text-destructive hover:text-destructive"
                                                                     >
-                                                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                                                        <Trash2 className="h-4 w-4 mr-1" />
+                                                                        Remove
                                                                     </Button>
-                                                                )}
-                                                            </div>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 ))}
@@ -433,20 +575,65 @@ export default function NewCoursePage() {
                                     <CardTitle>Thumbnail</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <Label htmlFor="thumbnail" className="cursor-pointer">
-                                        <div className="border-2 border-dashed rounded-lg p-8 text-center hover:bg-muted/50 transition-colors">
-                                            <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                                            <p className="text-sm text-muted-foreground mb-2">
-                                                {thumbnailFile ? thumbnailFile.name : "Click to upload"}
-                                            </p>
+                                    {thumbnailPreview ? (
+                                        <div className="space-y-3">
+                                            <div className="relative aspect-video rounded-lg overflow-hidden border">
+                                                <img
+                                                    src={thumbnailPreview}
+                                                    alt="Thumbnail preview"
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <Label htmlFor="thumbnail" className="cursor-pointer flex-1">
+                                                    <div className="text-center py-2 px-3 border rounded-md hover:bg-muted/50 transition-colors text-sm">
+                                                        Change
+                                                    </div>
+                                                </Label>
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        setThumbnailFile(null);
+                                                        setThumbnailPreview(null);
+                                                        toast.info('Thumbnail removed');
+                                                    }}
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
                                         </div>
-                                    </Label>
+                                    ) : (
+                                        <Label htmlFor="thumbnail" className="cursor-pointer">
+                                            <div className="border-2 border-dashed rounded-lg p-8 text-center hover:bg-muted/50 transition-colors">
+                                                <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                                                <p className="text-sm text-muted-foreground mb-1">Click to upload</p>
+                                                <p className="text-xs text-muted-foreground">PNG, JPG up to 5MB</p>
+                                            </div>
+                                        </Label>
+                                    )}
                                     <input
                                         id="thumbnail"
                                         type="file"
                                         accept="image/*"
                                         className="hidden"
-                                        onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                if (file.size > 5 * 1024 * 1024) {
+                                                    toast.error('Image must be less than 5MB');
+                                                    return;
+                                                }
+                                                setThumbnailFile(file);
+                                                const reader = new FileReader();
+                                                reader.onload = (e) => {
+                                                    setThumbnailPreview(e.target?.result as string);
+                                                    toast.success('Thumbnail selected!');
+                                                };
+                                                reader.readAsDataURL(file);
+                                            }
+                                        }}
                                     />
                                 </CardContent>
                             </Card>

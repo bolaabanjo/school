@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { getCurrentUser, getCourseWithContent, getUserProgress, isEnrolled } from "@/lib/supabase/queries";
 import { VideoPlayer } from "@/components/video-player";
+import { ReadingContent } from "@/components/reading-content";
+import { YouTubePlayer } from "@/components/youtube-player";
 import { LessonSidebar } from "@/components/lesson-sidebar";
 
 interface LearnPageProps {
@@ -97,11 +99,23 @@ export default async function LearnPage({ params, searchParams }: LearnPageProps
                     </Badge>
                 </header>
 
-                {/* Video Player */}
-                <VideoPlayer
-                    lesson={currentLesson}
-                    isCompleted={isLessonCompleted}
-                />
+                {/* Lesson Content - switches based on lesson type */}
+                {currentLesson.type === 'reading' ? (
+                    <ReadingContent
+                        lesson={currentLesson}
+                        isCompleted={isLessonCompleted}
+                    />
+                ) : currentLesson.type === 'youtube' ? (
+                    <YouTubePlayer
+                        lesson={currentLesson}
+                        isCompleted={isLessonCompleted}
+                    />
+                ) : (
+                    <VideoPlayer
+                        lesson={currentLesson}
+                        isCompleted={isLessonCompleted}
+                    />
+                )}
 
                 {/* Lesson Info */}
                 <div className="max-w-4xl mx-auto px-4 md:px-6 py-6">

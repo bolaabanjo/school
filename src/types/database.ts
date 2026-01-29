@@ -4,7 +4,7 @@ export type UserRole = 'student' | 'admin';
 export type CourseStatus = 'draft' | 'published';
 export type CourseDifficulty = 'beginner' | 'intermediate' | 'advanced';
 export type EnrollmentStatus = 'active' | 'completed' | 'dropped';
-export type LessonType = 'video' | 'quiz' | 'reading';
+export type LessonType = 'video' | 'quiz' | 'reading' | 'youtube';
 
 export interface User {
   id: string;
@@ -42,6 +42,8 @@ export interface Lesson {
   title: string;
   description?: string;
   video_url?: string;
+  youtube_url?: string;
+  content?: string;
   duration_seconds: number;
   order_index: number;
   type: LessonType;
