@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import { Components } from "react-markdown";
 
 interface ReadingContentProps {
     lesson: {
@@ -17,6 +18,122 @@ interface ReadingContentProps {
     isCompleted: boolean;
     onComplete?: () => void;
 }
+
+// Custom components for ReactMarkdown to match blog styling
+const markdownComponents: Components = {
+    // Headings
+    h1: ({ children }) => (
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground mt-0 mb-6 tracking-tight">
+            {children}
+        </h1>
+    ),
+    h2: ({ children }) => (
+        <h2 className="text-xl md:text-2xl font-bold text-foreground mt-10 mb-4 tracking-tight">
+            {children}
+        </h2>
+    ),
+    h3: ({ children }) => (
+        <h3 className="text-lg md:text-xl font-semibold text-foreground mt-8 mb-3">
+            {children}
+        </h3>
+    ),
+
+    // Paragraphs
+    p: ({ children }) => (
+        <p className="text-foreground/85 leading-[1.75] mb-5 text-base md:text-lg">
+            {children}
+        </p>
+    ),
+
+    // Lists
+    ul: ({ children }) => (
+        <ul className="my-5 ml-1 space-y-3 list-disc list-outside pl-5">
+            {children}
+        </ul>
+    ),
+    ol: ({ children }) => (
+        <ol className="my-5 ml-1 space-y-3 list-decimal list-outside pl-5">
+            {children}
+        </ol>
+    ),
+    li: ({ children }) => (
+        <li className="text-foreground/85 leading-[1.7] text-base md:text-lg pl-1">
+            {children}
+        </li>
+    ),
+
+    // Bold and emphasis
+    strong: ({ children }) => (
+        <strong className="font-bold text-foreground">{children}</strong>
+    ),
+    em: ({ children }) => (
+        <em className="italic text-foreground/90">{children}</em>
+    ),
+
+    // Code
+    code: ({ className, children }) => {
+        const isInline = !className;
+        if (isInline) {
+            return (
+                <code className="bg-muted text-foreground/90 px-1.5 py-0.5 rounded text-sm font-mono">
+                    {children}
+                </code>
+            );
+        }
+        return (
+            <code className={`${className} font-mono`}>{children}</code>
+        );
+    },
+    pre: ({ children }) => (
+        <pre className="bg-muted border border-border rounded-lg p-4 overflow-x-auto my-6 text-sm">
+            {children}
+        </pre>
+    ),
+
+    // Blockquote
+    blockquote: ({ children }) => (
+        <blockquote className="border-l-4 border-primary bg-muted/30 py-3 px-5 my-6 rounded-r-lg">
+            {children}
+        </blockquote>
+    ),
+
+    // Horizontal rule
+    hr: () => <hr className="my-8 border-border/50" />,
+
+    // Links
+    a: ({ href, children }) => (
+        <a
+            href={href}
+            className="text-primary hover:underline"
+            target={href?.startsWith('http') ? '_blank' : undefined}
+            rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+        >
+            {children}
+        </a>
+    ),
+
+    // Table
+    table: ({ children }) => (
+        <div className="my-6 overflow-x-auto">
+            <table className="w-full border-collapse border border-border rounded-lg">
+                {children}
+            </table>
+        </div>
+    ),
+    thead: ({ children }) => (
+        <thead className="bg-muted">{children}</thead>
+    ),
+    th: ({ children }) => (
+        <th className="border border-border px-4 py-3 text-left font-semibold text-foreground">
+            {children}
+        </th>
+    ),
+    td: ({ children }) => (
+        <td className="border border-border px-4 py-3 text-foreground/85">
+            {children}
+        </td>
+    ),
+};
 
 export function ReadingContent({ lesson, isCompleted, onComplete }: ReadingContentProps) {
     const router = useRouter();
@@ -79,41 +196,10 @@ export function ReadingContent({ lesson, isCompleted, onComplete }: ReadingConte
         <div className="bg-card border-b border-border/50">
             <div className="max-w-2xl mx-auto px-4 md:px-6 py-10 md:py-14">
                 {/* Reading Content with Markdown */}
-                <article className="
-                    prose prose-lg dark:prose-invert max-w-none
-                    
-                    /* Base text */
-                    prose-p:text-foreground/85 prose-p:leading-[1.8] prose-p:mb-6
-                    
-                    /* Headings */
-                    prose-headings:font-bold prose-headings:text-foreground prose-headings:tracking-tight
-                    prose-h1:text-2xl prose-h1:md:text-3xl prose-h1:mb-6 prose-h1:mt-0
-                    prose-h2:text-xl prose-h2:md:text-2xl prose-h2:mt-12 prose-h2:mb-6
-                    prose-h3:text-lg prose-h3:md:text-xl prose-h3:mt-10 prose-h3:mb-4 prose-h3:font-semibold
-                    
-                    /* Lists */
-                    prose-ul:my-6 prose-ol:my-6 prose-ul:space-y-4 prose-ol:space-y-4
-                    prose-li:text-foreground/85 prose-li:leading-[1.7] prose-li:pl-2
-                    prose-li:marker:text-foreground/50
-                    
-                    /* Bold and emphasis */
-                    prose-strong:text-foreground prose-strong:font-bold
-                    prose-em:text-foreground/90
-                    
-                    /* Blockquotes */
-                    prose-blockquote:border-l-4 prose-blockquote:border-primary 
-                    prose-blockquote:bg-muted/30 prose-blockquote:py-3 prose-blockquote:px-5 
-                    prose-blockquote:rounded-r-lg prose-blockquote:not-italic
-                    prose-blockquote:my-8
-                    
-                    /* Horizontal rule */
-                    prose-hr:my-10 prose-hr:border-border/50
-                    
-                    /* Code */
-                    prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-normal
-                    prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-pre:rounded-lg
-                ">
-                    <ReactMarkdown>{lesson.content}</ReactMarkdown>
+                <article>
+                    <ReactMarkdown components={markdownComponents}>
+                        {lesson.content}
+                    </ReactMarkdown>
                 </article>
 
                 {/* Mark Complete Button */}
@@ -133,4 +219,3 @@ export function ReadingContent({ lesson, isCompleted, onComplete }: ReadingConte
         </div>
     );
 }
-
