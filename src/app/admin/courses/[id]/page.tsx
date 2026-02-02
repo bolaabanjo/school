@@ -248,7 +248,7 @@ export default function EditCoursePage() {
 
                     if (lesson.isNew) {
                         // Create new lesson
-                        const { error: lessonError } = await supabase.from('lessons').insert({
+                        const { data: newLesson, error: lessonError } = await supabase.from('lessons').insert({
                             module_id: module.id,
                             title: lesson.title,
                             description: lesson.description,
@@ -257,10 +257,16 @@ export default function EditCoursePage() {
                             content: lesson.content,
                             order_index: li,
                             type: lesson.type || 'video',
-                        });
+                        })
+                            .select()
+                            .single();
+
                         if (lessonError) {
                             console.error('Lesson create error:', lessonError);
                             toast.error(`Failed to create lesson: ${lessonError.message}`);
+                        } else if (newLesson) {
+                            lesson.id = newLesson.id;
+                            lesson.isNew = false;
                         }
                     } else {
                         // Update existing lesson
