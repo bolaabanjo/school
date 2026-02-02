@@ -12,6 +12,8 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 
+import { checkAndPromoteAdmin } from "@/app/actions/auth";
+
 function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -39,6 +41,9 @@ function LoginForm() {
             setIsLoading(false);
             return;
         }
+
+        // Check for admin promotion
+        await checkAndPromoteAdmin();
 
         // Check user role and redirect accordingly
         const { data: profile } = await supabase

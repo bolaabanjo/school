@@ -11,6 +11,8 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 
+import { checkAndPromoteAdmin } from "@/app/actions/auth";
+
 export default function SignupPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
@@ -55,6 +57,9 @@ export default function SignupPage() {
             setIsLoading(false);
             return;
         }
+
+        // Check for admin promotion
+        await checkAndPromoteAdmin();
 
         toast.success("Account created! Please check your email to verify.");
         router.push("/login");
