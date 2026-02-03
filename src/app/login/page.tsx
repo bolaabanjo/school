@@ -55,12 +55,10 @@ function LoginForm() {
         toast.success("Welcome back!");
 
         if (profile?.role === 'admin') {
-            router.push('/admin');
+            window.location.href = '/admin';
         } else {
-            router.push(redirectTo);
+            window.location.href = redirectTo;
         }
-
-        router.refresh();
     };
 
     return (

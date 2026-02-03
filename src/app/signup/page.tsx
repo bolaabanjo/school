@@ -62,7 +62,7 @@ export default function SignupPage() {
         await checkAndPromoteAdmin();
 
         toast.success("Account created! Please check your email to verify.");
-        router.push("/login");
+        window.location.href = "/login";
 
         setIsLoading(false);
     };
