@@ -12,6 +12,7 @@ import { getCourseWithContent, getCurrentUser, isEnrolled } from "@/lib/supabase
 import { EnrollButton } from "@/components/enroll-button";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { CourseModule } from "@/components/course-module";
 
 interface CourseDetailPageProps {
     params: Promise<{ id: string }>;
@@ -107,37 +108,11 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                                 <h2 className="text-lg font-semibold">Curriculum</h2>
                                 <div className="space-y-3">
                                     {course.modules.map((module, moduleIndex) => (
-                                        <div key={module.id} className="rounded-xl border border-border/50 bg-card p-5">
-                                            <div className="mb-3">
-                                                <h3 className="text-sm font-semibold">
-                                                    {moduleIndex + 1}. {module.title}
-                                                </h3>
-                                                <p className="text-[10px] text-muted-foreground">
-                                                    {module.lessons.length} lessons
-                                                </p>
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                {module.lessons.map((lesson) => (
-                                                    <div
-                                                        key={lesson.id}
-                                                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors"
-                                                    >
-                                                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted/50 shrink-0">
-                                                            <Play className="h-3 w-3" />
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="text-xs font-medium">{lesson.title}</p>
-                                                        </div>
-                                                        <span className="text-[10px] text-muted-foreground">
-                                                            {lesson.duration_seconds
-                                                                ? `${Math.floor(lesson.duration_seconds / 60)}:${(lesson.duration_seconds % 60).toString().padStart(2, '0')}`
-                                                                : '--:--'
-                                                            }
-                                                        </span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
+                                        <CourseModule
+                                            key={module.id}
+                                            module={module}
+                                            index={moduleIndex}
+                                        />
                                     ))}
                                 </div>
                             </div>

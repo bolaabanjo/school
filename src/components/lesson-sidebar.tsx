@@ -37,6 +37,90 @@ interface LessonSidebarProps {
     overallProgress: number;
 }
 
+// Internal component for collapsible module
+function SidebarModule({
+    module,
+    moduleIndex,
+    currentLessonId,
+    progress,
+    courseId,
+    onNavClick
+}: {
+    module: LessonSidebarProps['course']['modules'][0];
+    moduleIndex: number;
+    currentLessonId: string;
+    progress: LessonSidebarProps['progress'];
+    courseId: string;
+    onNavClick?: () => void;
+}) {
+    // Check if any lesson in this module is active
+    const isActiveModule = module.lessons.some(l => l.id === currentLessonId);
+
+    // Initialize open state based on active status
+    const [isOpen, setIsOpen] = useState(isActiveModule);
+
+    return (
+        <div className="mb-4">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center justify-between w-full text-left mb-2 px-2 hover:bg-muted/50 rounded-md py-1 transition-colors"
+            >
+                <h3 className="text-[10px] font-medium text-muted-foreground line-clamp-1">
+                    {moduleIndex + 1}. {module.title}
+                </h3>
+                {/* Optional: Add chevron if desired, or just use click to toggle */}
+            </button>
+
+            {isOpen && (
+                <div className="space-y-0.5 animate-in slide-in-from-top-1 duration-200">
+                    {module.lessons.map((lesson, lessonIndex) => {
+                        const isCompleted = progress.some(p => p.lesson_id === lesson.id && p.completed);
+                        const isCurrent = lesson.id === currentLessonId;
+
+                        return (
+                            <Link
+                                key={lesson.id}
+                                href={`/learn/${courseId}?lesson=${lesson.id}`}
+                                onClick={onNavClick}
+                                className={`flex items-center gap-2 px-2 py-2 rounded-lg text-xs transition-colors ${isCurrent
+                                    ? 'bg-foreground text-background'
+                                    : isCompleted
+                                        ? 'text-muted-foreground hover:bg-muted'
+                                        : 'hover:bg-muted'
+                                    }`}
+                            >
+                                <div className={`flex h-5 w-5 items-center justify-center rounded-full shrink-0 ${isCompleted
+                                    ? 'bg-emerald-500 text-white'
+                                    : isCurrent
+                                        ? 'bg-background text-foreground'
+                                        : 'border border-border'
+                                    }`}>
+                                    {isCompleted ? (
+                                        <Check className="h-3 w-3" />
+                                    ) : isCurrent ? (
+                                        <Play className="h-2.5 w-2.5 ml-0.5" />
+                                    ) : (
+                                        <span className="text-[10px]">{lessonIndex + 1}</span>
+                                    )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="truncate">{lesson.title}</p>
+                                </div>
+                                <span className="text-[10px] text-muted-foreground shrink-0">
+                                    {lesson.duration_seconds
+                                        ? `${Math.floor(lesson.duration_seconds / 60)}:${(lesson.duration_seconds % 60).toString().padStart(2, '0')}`
+                                        : '--:--'
+                                    }
+                                </span>
+                            </Link>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
+}
+
 function SidebarContent({
     course,
     allLessons,
@@ -74,55 +158,15 @@ function SidebarContent({
             {/* Lessons List */}
             <div className="flex-1 overflow-y-auto p-3">
                 {course.modules.map((module, moduleIndex) => (
-                    <div key={module.id} className="mb-4">
-                        <h3 className="text-[10px] font-medium text-muted-foreground mb-2 px-2">
-                            {moduleIndex + 1}. {module.title}
-                        </h3>
-                        <div className="space-y-0.5">
-                            {module.lessons.map((lesson, lessonIndex) => {
-                                const isCompleted = progress.some(p => p.lesson_id === lesson.id && p.completed);
-                                const isCurrent = lesson.id === currentLessonId;
-
-                                return (
-                                    <Link
-                                        key={lesson.id}
-                                        href={`/learn/${course.id}?lesson=${lesson.id}`}
-                                        onClick={onNavClick}
-                                        className={`flex items-center gap-2 px-2 py-2 rounded-lg text-xs transition-colors ${isCurrent
-                                            ? 'bg-foreground text-background'
-                                            : isCompleted
-                                                ? 'text-muted-foreground hover:bg-muted'
-                                                : 'hover:bg-muted'
-                                            }`}
-                                    >
-                                        <div className={`flex h-5 w-5 items-center justify-center rounded-full shrink-0 ${isCompleted
-                                            ? 'bg-emerald-500 text-white'
-                                            : isCurrent
-                                                ? 'bg-background text-foreground'
-                                                : 'border border-border'
-                                            }`}>
-                                            {isCompleted ? (
-                                                <Check className="h-3 w-3" />
-                                            ) : isCurrent ? (
-                                                <Play className="h-2.5 w-2.5 ml-0.5" />
-                                            ) : (
-                                                <span className="text-[10px]">{lessonIndex + 1}</span>
-                                            )}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="truncate">{lesson.title}</p>
-                                        </div>
-                                        <span className="text-[10px] text-muted-foreground shrink-0">
-                                            {lesson.duration_seconds
-                                                ? `${Math.floor(lesson.duration_seconds / 60)}:${(lesson.duration_seconds % 60).toString().padStart(2, '0')}`
-                                                : '--:--'
-                                            }
-                                        </span>
-                                    </Link>
-                                );
-                            })}
-                        </div>
-                    </div>
+                    <SidebarModule
+                        key={module.id}
+                        module={module}
+                        moduleIndex={moduleIndex}
+                        currentLessonId={currentLessonId}
+                        progress={progress}
+                        courseId={course.id}
+                        onNavClick={onNavClick}
+                    />
                 ))}
             </div>
         </div>
