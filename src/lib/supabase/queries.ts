@@ -298,7 +298,12 @@ export async function getUserEnrollments(userId: string) {
         .from('enrollments')
         .select(`
       *,
-      course:courses(*)
+      course:courses(
+        *,
+        modules(
+          lessons(id)
+        )
+      )
     `)
         .eq('user_id', userId)
         .order('enrolled_at', { ascending: false });
