@@ -102,8 +102,8 @@ export default async function LearnPage({ params, searchParams }: LearnPageProps
                     </Badge>
                 </header>
 
-                {/* For reading lessons: show title at the top */}
-                {currentLesson.type === 'reading' && (
+                {/* For reading/quiz/assignment lessons: show title at the top */}
+                {(currentLesson.type === 'reading' || currentLesson.type === 'quiz' || currentLesson.type === 'assignment') && (
                     <div className="max-w-2xl mx-auto px-4 md:px-6 pt-8 pb-4">
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                             <div>
@@ -171,8 +171,8 @@ export default async function LearnPage({ params, searchParams }: LearnPageProps
                     />
                 )}
 
-                {/* Lesson Info - only for non-reading lessons */}
-                {currentLesson.type !== 'reading' && (
+                {/* Lesson Info - only for video lessons (shown below) */}
+                {(currentLesson.type === 'video' || currentLesson.type === 'youtube') && (
                     <div className="max-w-4xl mx-auto px-4 md:px-6 py-6">
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
                             <div>
