@@ -97,7 +97,9 @@ export default async function AdminCoursesPage() {
                                                 variant="outline"
                                                 className={`rounded-full px-2 py-0.5 text-[10px] border-0 ${course.status === "published"
                                                     ? "bg-emerald-500/10 text-emerald-500"
-                                                    : "bg-muted text-muted-foreground"
+                                                    : course.status === "locked"
+                                                        ? "bg-amber-500/10 text-amber-500"
+                                                        : "bg-muted text-muted-foreground"
                                                     }`}
                                             >
                                                 {course.status}

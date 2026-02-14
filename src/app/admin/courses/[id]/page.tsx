@@ -1167,7 +1167,7 @@ export default function EditCoursePage() {
 
                                 <Separator className="my-2" />
 
-                                <RegisterUserDialog courseId={courseId} courseTitle={course.title} />
+                                <RegisterUserDialog courseId={courseId} courseTitle={course.title} isLocked={course.status === 'locked'} />
 
                                 <Button variant="ghost" className="w-full" asChild>
                                     <Link href="/admin/courses">
@@ -1184,7 +1184,7 @@ export default function EditCoursePage() {
     );
 }
 
-function RegisterUserDialog({ courseId, courseTitle }: { courseId: string, courseTitle: string }) {
+function RegisterUserDialog({ courseId, courseTitle, isLocked }: { courseId: string, courseTitle: string, isLocked: boolean }) {
     const [open, setOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState("");
@@ -1227,8 +1227,14 @@ function RegisterUserDialog({ courseId, courseTitle }: { courseId: string, cours
                     <DialogTitle>Register Student</DialogTitle>
                     <DialogDescription>
                         Create an account for a student and enroll them in <strong>{courseTitle}</strong>.
-                        They will receive an email to set their password.
+                        They will receive an email with their login credentials (email & temporary password).
                     </DialogDescription>
+                    {isLocked && (
+                        <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-[10px] text-amber-700 flex items-center gap-2">
+                            <Lock className="h-3 w-3" />
+                            <span>This course is currently <strong>Locked</strong>. No new public enrollments are allowed, but you can still manually add students here.</span>
+                        </div>
+                    )}
                 </DialogHeader>
                 <form onSubmit={handleRegister} className="space-y-4">
                     <div className="space-y-2">

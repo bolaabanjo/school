@@ -1,16 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import { Loader2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { Separator } from "@/components/ui/separator";
+
 export default function SettingsPage() {
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
     const [password, setPassword] = useState("");
@@ -67,6 +73,11 @@ export default function SettingsPage() {
             toast.success("Password updated successfully");
             setPassword("");
             setConfirmPassword("");
+
+            // Give them a moment to see the success message
+            setTimeout(() => {
+                router.push("/dashboard");
+            }, 1500);
         } catch (error: any) {
             console.error("Update password error:", error);
             toast.error(error.message || "Failed to update password");
@@ -114,62 +125,79 @@ export default function SettingsPage() {
     }
 
     return (
-        <div className="container max-w-2xl py-10 px-4 mx-auto">
-            <div className="flex items-center gap-4 mb-8">
-                <Button variant="ghost" size="icon" asChild className="rounded-full">
-                    <Link href="/dashboard">
-                        <Loader2 className="h-4 w-4 rotate-90" /> {/* Back arrow placeholder */}
-                    </Link>
-                </Button>
-                <h1 className="text-3xl font-bold">Account Settings</h1>
-            </div>
+        <SidebarProvider>
+            <AppSidebar user={user} />
+            <SidebarInset>
+                <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border/50 px-4 md:px-6">
+                    <SidebarTrigger className="-ml-1" />
+                    <Separator orientation="vertical" className="mr-2 h-4" />
+                    <div className="flex items-center gap-2 text-sm min-w-0">
+                        <Link href="/dashboard" className="text-muted-foreground hover:text-foreground shrink-0">
+                            Dashboard
+                        </Link>
+                        <span className="text-muted-foreground">/</span>
+                        <span className="font-medium truncate">Settings</span>
+                    </div>
+                </header>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Security</CardTitle>
-                    <CardDescription>
-                        Update your password to keep your account secure.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleUpdatePassword} className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="password">New Password</Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="Enter new password"
-                                required
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="confirmPassword">Confirm Password</Label>
-                            <Input
-                                id="confirmPassword"
-                                type="password"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                placeholder="Confirm new password"
-                                required
-                            />
-                        </div>
-                        <div className="flex justify-end pt-2">
-                            <Button type="submit" disabled={isUpdating} className="w-full sm:w-auto">
-                                {isUpdating ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Updating...
-                                    </>
-                                ) : (
-                                    "Update Password"
-                                )}
-                            </Button>
-                        </div>
-                    </form>
-                </CardContent>
-            </Card>
-        </div>
+                <main className="w-full max-w-2xl mx-auto px-4 md:px-6 py-10 space-y-8">
+                    <div className="flex items-center gap-4">
+                        <Button variant="ghost" size="icon" asChild className="rounded-full">
+                            <Link href="/dashboard">
+                                <ArrowLeft className="h-4 w-4" />
+                            </Link>
+                        </Button>
+                        <h1 className="text-3xl font-bold">Account Settings</h1>
+                    </div>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Security</CardTitle>
+                            <CardDescription>
+                                Update your password to keep your account secure.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <form onSubmit={handleUpdatePassword} className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="password">New Password</Label>
+                                    <Input
+                                        id="password"
+                                        type="password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="Enter new password"
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                                    <Input
+                                        id="confirmPassword"
+                                        type="password"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        placeholder="Confirm new password"
+                                        required
+                                    />
+                                </div>
+                                <div className="flex justify-end pt-2">
+                                    <Button type="submit" disabled={isUpdating} className="w-full sm:w-auto">
+                                        {isUpdating ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Updating...
+                                            </>
+                                        ) : (
+                                            "Update Password"
+                                        )}
+                                    </Button>
+                                </div>
+                            </form>
+                        </CardContent>
+                    </Card>
+                </main>
+            </SidebarInset>
+        </SidebarProvider>
     );
 }
