@@ -36,14 +36,16 @@ export const InviteEmail = ({
             <Tailwind>
                 <Body className="bg-white my-auto mx-auto font-sans">
                     <Container className="border border-solid border-[#eaeaea] rounded my-[40px] mx-auto p-[20px] max-w-[465px]">
-                        <Heading className="text-black text-[24px] font-normal text-center p-0 my-[30px] mx-0">
-                            <strong>{courseTitle}</strong> Access Granted
+                        <Heading className="text-black text-[28px] font-bold text-center p-0 my-[20px] mx-0">
+                            {courseTitle}
+                            <br />
+                            Access Granted
                         </Heading>
                         <Text className="text-black text-[14px] leading-[24px]">
                             Hello {userName || "there"},
                         </Text>
                         <Text className="text-black text-[14px] leading-[24px]">
-                            You have been registered for the course <strong>{courseTitle}</strong>.
+                            Welcome to Corne Labs School — and congratulations, you've been enrolled in <strong>{courseTitle}</strong>. We're excited to have you begin this journey with us.
                         </Text>
 
                         {isNewUser ? (
@@ -51,16 +53,16 @@ export const InviteEmail = ({
                                 <Text className="text-black text-[14px] leading-[24px]">
                                     Your account has been created. You can log in using the credentials below:
                                 </Text>
-                                <Section className="bg-[#f4f4f4] rounded p-[15px] my-[15px]">
-                                    <Text className="text-black text-[14px] leading-[24px] m-0">
-                                        <strong>Email:</strong> {userEmail}
+                                <Section className="bg-[#2d2d2d] rounded-[8px] p-[24px] my-[24px]">
+                                    <Text className="text-white text-[16px] leading-[24px] m-0 mb-2">
+                                        <strong>Email:</strong> <span className="text-[#3b82f6] underline">{userEmail}</span>
                                     </Text>
-                                    <Text className="text-black text-[14px] leading-[24px] m-0">
+                                    <Text className="text-white text-[16px] leading-[24px] m-0">
                                         <strong>Temporary Password:</strong> {tempPassword}
                                     </Text>
                                 </Section>
                                 <Text className="text-black text-[14px] leading-[24px]">
-                                    Please log in and change your password in the <strong>Settings</strong> page immediately.
+                                    Please keep your temporary password secure and log in to change your password immediately in your <strong>Settings</strong> page.
                                 </Text>
                             </>
                         ) : (
@@ -71,16 +73,22 @@ export const InviteEmail = ({
 
                         <Section className="text-center mt-[32px] mb-[32px]">
                             <Button
-                                className="bg-[#000000] rounded text-white text-[12px] font-semibold no-underline text-center px-5 py-3"
+                                className="bg-[#000000] rounded text-white text-[12px] font-semibold no-underline text-center px-6 py-3"
                                 href={actionLink}
                             >
                                 {isNewUser ? "Log In & Access Course" : "Go to Course"}
                             </Button>
                         </Section>
                         <Text className="text-black text-[14px] leading-[24px]">
-                            Happy learning!
+                            If you need any help with access, content, or scheduling, contact: <a href="mailto:admin@school.cornelabs.com" className="text-[#10b981] font-medium no-underline">admin@school.cornelabs.com</a> or reply to this email.
+                        </Text>
+                        <Text className="text-black text-[14px] leading-[24px] my-[16px]">
+                            See your inbox Module 1.
+                        </Text>
+                        <Text className="text-black text-[14px] leading-[24px]">
+                            Happy learning,
                             <br />
-                            The Cornelabs Team
+                            Corne Labs Learning Team
                         </Text>
                     </Container>
                 </Body>
