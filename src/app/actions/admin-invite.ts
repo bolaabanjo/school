@@ -102,9 +102,9 @@ export async function adminInviteUser(courseId: string, email: string, fullName:
     if (process.env.RESEND_API_KEY) {
         try {
             await resend.emails.send({
-                from: 'Cornelabs School <admin@school.cornelabs.com>',
+                from: 'Corne Labs School <admin@school.cornelabs.com>',
                 to: email,
-                subject: isNewUser ? `Your account for ${course.title}` : `Course Enrollment: ${course.title}`,
+                subject: `Welcome to Corne Labs School — ${course.title}`,
                 react: InviteEmail({
                     courseTitle: course.title,
                     actionLink: actionLink,

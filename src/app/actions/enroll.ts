@@ -71,9 +71,9 @@ export async function enrollUserAction(courseId: string) {
             const courseUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/learn/${courseId}`;
 
             await resend.emails.send({
-                from: 'Cornelabs School <welcome@school.cornelabs.com>',
+                from: 'Corne Labs School <welcome@school.cornelabs.com>',
                 to: studentEmail,
-                subject: `Welcome to ${course.title}!`,
+                subject: `Welcome to Corne Labs School — ${course.title}`,
                 react: WelcomeEmail({
                     studentName,
                     courseTitle: course.title,
