@@ -3,7 +3,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser, getCourseWithContent, getUserProgress, isEnrolled, getCertificate } from "@/lib/supabase/queries";
 import { LessonSidebar } from "@/components/lesson-sidebar";
-import { Trophy, Mail, Sparkles, LayoutDashboard, ExternalLink } from "lucide-react";
+import { Trophy, Sparkles, LayoutDashboard } from "lucide-react";
+import { CertificateGenerator } from "./certificate-generator";
 
 interface CertificatePageProps {
     params: Promise<{ courseId: string }>;
@@ -71,25 +72,12 @@ export default async function CertificatePage({ params }: CertificatePageProps) 
                             You’ve completed the{" "}
                             <span className="text-amber-600 dark:text-amber-400">{course.title}</span> course.
                         </p>
-                        <div className="flex flex-col items-center gap-2 pt-4 text-muted-foreground">
-                            <p className="flex items-center gap-2 text-base">
-                                <Mail className="h-4 w-4 text-amber-500" />
-                                Your certificate has been sent to your email — please check your inbox.
-                            </p>
-                            {certificate?.certificate_reference_no && (
-                                <Button asChild variant="secondary" size="sm" className="mt-3 rounded-full">
-                                    <a
-                                        href={`https://credsverse.com/credentials/${certificate.certificate_reference_no}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-2"
-                                    >
-                                        <ExternalLink className="h-4 w-4" />
-                                        View certificate
-                                    </a>
-                                </Button>
-                            )}
-                        </div>
+                        <CertificateGenerator
+                            courseId={courseId}
+                            studentName={user.full_name ?? user.email ?? "Learner"}
+                            studentEmail={user.email ?? ""}
+                            existingReferenceNo={certificate?.certificate_reference_no ?? null}
+                        />
                     </div>
 
                     <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
